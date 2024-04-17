@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    depends_on:
+      - mariadb
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+
+  php74:
+    build:
+      context: .
+      dockerfile: Dockerfile-php74
+    restart: always
+    volumes:
+      - ./app1:/var/www/html
+    depends_on:
+      - mariadb
+    ports:
+      - "8001:80"
+
+  php80:
+    build:
+      context: .
+      dockerfile: Dockerfile-php80
+    restart: always
+    volumes:
+      - ./app2:/var/www/html
+    depends_on:
+      - mariadb
+    ports:
+      - "8002:80"
+
+volumes:
+  mariadb_data:
